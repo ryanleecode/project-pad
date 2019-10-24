@@ -24,6 +24,12 @@ export function activate(context: vscode.ExtensionContext) {
         envVarsProvider.promptEdit(new EnvVar(label, value));
       },
     ),
+    vscode.commands.registerCommand(
+      'env-variables.delete',
+      ({ label }: { label: string }) => {
+        envVarsProvider.delete(label);
+      },
+    ),
   ];
 
   const setEnvVarsFromEnvFile = (fileURL: string, overwrite: boolean) => {

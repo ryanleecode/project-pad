@@ -58,6 +58,10 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
     this.setEnvVar(key, value);
   }
 
+  public delete(key: string) {
+    this.setEnvVar(key, undefined);
+  }
+
   public promptEdit(envVar: EnvVar): void {
     showEnvVarNamePrompt(envVar.label).then((envVarName) => {
       showEnvVarValuePrompt(envVar.value).then((envVarValue) => {
