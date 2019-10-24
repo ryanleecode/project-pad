@@ -1,0 +1,117 @@
+{
+	"name": "project-pad",
+	"displayName": "Project Pad",
+	"description": "Store notes, code-snippets, environment configs for your project",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.39.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:env-variables"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [{
+				"command": "env-variables.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "env-variables.add",
+				"title": "Add",
+				"icon": {
+					"light": "resources/light/plus.png",
+					"dark": "resources/dark/plus.png"
+				}
+			},
+			{
+				"command": "env-variables.edit",
+				"title": "Edit",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [{
+				"id": "project-pad",
+				"title": "Project Pad",
+				"icon": "resources/project-pad.png"
+			}]
+		},
+		"views": {
+			"project-pad": [{
+					"id": "env-variables",
+					"name": "Environment Variables"
+				},
+				{
+					"id": "commands",
+					"name": "Commands"
+				},
+				{
+					"id": "code-snippets",
+					"name": "Code Snippets"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [{
+					"command": "env-variables.refresh",
+					"when": "view == env-variables",
+					"group": "navigation"
+				},
+				{
+					"command": "env-variables.add",
+					"when": "view == env-variables",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [{
+				"command": "env-variables.edit",
+				"when": "view == env-variables && viewItem == env-var",
+				"group": "inline"
+			}]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"lint": "eslint ./src/**/**/*.ts",
+		"lint:fix": "eslint --fix ./src/**/**/*.ts",
+		"lint:precommit": "eslint --max-warnings=0 --fix ./src/**/**/*.ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^10.12.21",
+		"@types/vscode": "^1.39.0",
+		"@typescript-eslint/eslint-plugin": "^2.5.0",
+		"@typescript-eslint/parser": "^2.5.0",
+		"eslint": "^6.5.1",
+		"eslint-plugin-mocha": "^6.2.0",
+		"glob": "^7.1.4",
+		"husky": "^3.0.9",
+		"mocha": "^6.2.2",
+		"prettier": "^1.18.2",
+		"typescript": "^3.6.3",
+		"vscode-test": "^1.2.0"
+	},
+	"dependencies": {
+		"dotenv": "^8.2.0"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "npm build && npm test"
+		}
+	}
+}

@@ -1,0 +1,100 @@
+import * as vscode from 'vscode';
+
+const CONTEXT_VALUE = 'env-var';
+
+export class EnvVar extends vscode.TreeItem {
+  constructor(public readonly label: string, public value: string) {
+    super(label);
+  }
+
+  get description(): string {
+    return this.value;
+  }
+
+  get tooltip(): string {
+    return `${this.label}=${this.value || ''}`;
+  }
+
+  contextValue = CONTEXT_VALUE;
+}
+
+const ENV_VARS_KEY = 'env-vars';
+type EnvVarsMap = { [key: string]: EnvVar };
+
+const showEnvVarNamePrompt = (value?: string) =>
+  vscode.window.showInputBox({
+    prompt: 'Environment Variable Name',
+    placeHolder: 'ENVIRONMENT_VARIABLE_NAME',
+    value,
+  });
+
+const showEnvVarValuePrompt = (value?: string) =>
+  vscode.window.showInputBox({
+    prompt: 'Environment Variable Value',
+    placeHolder: 'ENVIRONMENT_VARIABLE_VALUE',
+    value,
+  });
+
+export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
+  private _onDidChangeTreeData: vscode.EventEmitter<EnvVar | undefined>;
+
+  constructor(private readonly context: vscode.ExtensionContext) {
+    this._onDidChangeTreeData = new vscode.EventEmitter<EnvVar | undefined>();
+    this.onDidChangeTreeData = this._onDidChangeTreeData.event;
+  }
+
+  public readonly onDidChangeTreeData?: vscode.Event<EnvVar | undefined>;
+
+  public refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
+
+  public promptEdit(envVar: EnvVar): void {
+    showEnvVarNamePrompt(envVar.label).then((envVarName) => {
+      showEnvVarValuePrompt(envVar.value).then((envVarValue) => {
+        this.setEnvVar(envVarName, envVarValue);
+      });
+    });
+  }
+
+  public promptAddNew(): void {
+    showEnvVarNamePrompt().then((envVarName) => {
+      showEnvVarValuePrompt().then((envVarValue) => {
+        this.setEnvVar(envVarName, envVarValue);
+      });
+    });
+  }
+
+  private setEnvVar(label?: string, value?: string) {
+    if (!label) {
+      return;
+    }
+    const envVars =
+      this.context.workspaceState.get<EnvVarsMap>(ENV_VARS_KEY) || {};
+    envVars[label] = new EnvVar(label, value || '');
+
+    this.context.workspaceState.update(ENV_VARS_KEY, envVars);
+    this._onDidChangeTreeData.fire();
+  }
+
+  public getTreeItem(
+    element: EnvVar,
+  ): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    return element;
+  }
+
+  public getChildren(
+    element?: EnvVar | undefined,
+  ): vscode.ProviderResult<EnvVar[]> {
+    if (!element) {
+      const envVars = this.context.workspaceState.get<EnvVarsMap>(ENV_VARS_KEY);
+      if (!envVars) {
+        return undefined;
+      }
+
+      return Object.values(envVars).map(
+        ({ label, value }) => new EnvVar(label, value),
+      );
+    }
+  }
+}
