@@ -41,6 +41,14 @@
 			{
 				"command": "env-variables.delete",
 				"title": "Delete"
+			},
+			{
+				"command": "env-variables.export",
+				"title": "Export",
+				"icon": {
+					"light": "resources/light/export.png",
+					"dark": "resources/dark/export.png"
+				}
 			}
 		],
 		"viewsContainers": {
@@ -73,6 +81,11 @@
 				},
 				{
 					"command": "env-variables.add",
+					"when": "view == env-variables",
+					"group": "navigation"
+				},
+				{
+					"command": "env-variables.export",
 					"when": "view == env-variables",
 					"group": "navigation"
 				}

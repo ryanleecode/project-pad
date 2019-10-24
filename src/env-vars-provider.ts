@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs-jetpack';
 
 const CONTEXT_VALUE = 'env-var';
 
@@ -76,6 +77,31 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
         this.setEnvVar(envVarName, envVarValue);
       });
     });
+  }
+
+  public export(): void {
+    const folder = vscode.workspace.workspaceFolders!![0];
+    vscode.window
+      .showSaveDialog({
+        defaultUri: folder
+          ? vscode.workspace.getWorkspaceFolder(folder.uri)!!.uri
+          : undefined,
+      })
+      .then((fileURL) => {
+        if (!fileURL) {
+          return;
+        }
+        const writeStream = fs.createWriteStream(fileURL.fsPath, {
+          flags: 'a',
+        });
+
+        for (const key of Object.keys(this.envVars)) {
+          writeStream.write(
+            `${this.envVars[key].label}=${this.envVars[key].value}`,
+          );
+        }
+        writeStream.end();
+      });
   }
 
   private setEnvVar(label?: string, value?: string) {

@@ -30,6 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
         envVarsProvider.delete(label);
       },
     ),
+    vscode.commands.registerCommand(`env-variables.export`, () => {
+      envVarsProvider.export();
+    }),
   ];
 
   const setEnvVarsFromEnvFile = (fileURL: string, overwrite: boolean) => {
