@@ -42,3 +42,5 @@ rules:
     - off
   "mocha/no-setup-in-describe":
     - off
+  "@typescript-eslint/no-non-null-assertion":
+    - off

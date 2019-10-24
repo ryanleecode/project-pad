@@ -85,9 +85,9 @@
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile",
-		"lint": "eslint ./src/**/**/*.ts",
-		"lint:fix": "eslint --fix ./src/**/**/*.ts",
-		"lint:precommit": "eslint --max-warnings=0 --fix ./src/**/**/*.ts",
+		"lint": "eslint './src/**/*.ts'",
+		"lint:fix": "eslint --fix './src/**/*.ts'",
+		"lint:precommit": "eslint --max-warnings=0 --fix './src/**/*.ts'",
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
