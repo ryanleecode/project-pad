@@ -107,7 +107,8 @@
 		"vscode-test": "^1.2.0"
 	},
 	"dependencies": {
-		"dotenv": "^8.2.0"
+		"dotenv": "^8.2.0",
+		"fs-jetpack": "^2.2.3"
 	},
 	"husky": {
 		"hooks": {
