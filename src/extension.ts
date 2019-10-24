@@ -2,6 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { EnvVarsProvider, EnvVar } from './env-vars-provider';
+import * as dotenv from 'dotenv';
+import * as fs from 'fs-jetpack';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -24,16 +26,41 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   ];
 
-  const fsWatchers: vscode.FileSystemWatcher[] = [];
+  const setEnvVarsFromEnvFile = (fileURL: string, overwrite: boolean) => {
+    const file = fs.read(fileURL);
+    const parseResult = dotenv.parse(file || '');
+    for (const key of Object.keys(parseResult)) {
+      if (!envVarsProvider.contains(key) || overwrite) {
+        envVarsProvider.set(key, parseResult[key]);
+      }
+    }
+  };
+
   for (const folder of vscode.workspace.workspaceFolders || []) {
-    const fsWatcher = vscode.workspace.createFileSystemWatcher(
+    const envExampleWatcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(
         vscode.workspace.getWorkspaceFolder(folder.uri)!!,
         '**/*.env.example',
       ),
     );
-    fsWatcher.onDidCreate((e) => console.log(e));
-    fsWatchers.push(fsWatcher);
+    disposables.push(
+      envExampleWatcher.onDidChange((fileURL) =>
+        setEnvVarsFromEnvFile(fileURL.fsPath, false),
+      ),
+    );
+    disposables.push(envExampleWatcher);
+    const envWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(
+        vscode.workspace.getWorkspaceFolder(folder.uri)!!,
+        '**/*.env',
+      ),
+    );
+    disposables.push(
+      envWatcher.onDidChange((fileURL) =>
+        setEnvVarsFromEnvFile(fileURL.fsPath, true),
+      ),
+    );
+    disposables.push(envWatcher);
   }
 
   console.log('Congratulations, your extension "project-pad" is now active!');

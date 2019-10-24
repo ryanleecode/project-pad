@@ -49,6 +49,15 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
     this._onDidChangeTreeData.fire();
   }
 
+  public contains(key: string): boolean {
+    const envVars = this.envVars;
+    return Boolean(envVars[key]);
+  }
+
+  public set(key: string, value: string) {
+    this.setEnvVar(key, value);
+  }
+
   public promptEdit(envVar: EnvVar): void {
     showEnvVarNamePrompt(envVar.label).then((envVarName) => {
       showEnvVarValuePrompt(envVar.value).then((envVarValue) => {
@@ -69,12 +78,19 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
     if (!label) {
       return;
     }
-    const envVars =
-      this.context.workspaceState.get<EnvVarsMap>(ENV_VARS_KEY) || {};
-    envVars[label] = new EnvVar(label, value || '');
+    const envVars = this.envVars;
+    if (value) {
+      envVars[label] = new EnvVar(label, value || '');
+    } else {
+      delete envVars[label];
+    }
 
     this.context.workspaceState.update(ENV_VARS_KEY, envVars);
     this._onDidChangeTreeData.fire();
+  }
+
+  private get envVars() {
+    return this.context.workspaceState.get<EnvVarsMap>(ENV_VARS_KEY) || {};
   }
 
   public getTreeItem(
