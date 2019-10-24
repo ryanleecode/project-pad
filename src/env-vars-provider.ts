@@ -51,7 +51,7 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
 
   public contains(key: string): boolean {
     const envVars = this.envVars;
-    return Boolean(envVars[key]);
+    return envVars[key] === undefined || envVars[key] === null;
   }
 
   public set(key: string, value: string) {
@@ -79,7 +79,7 @@ export class EnvVarsProvider implements vscode.TreeDataProvider<EnvVar> {
       return;
     }
     const envVars = this.envVars;
-    if (value) {
+    if (value !== undefined || value !== null) {
       envVars[label] = new EnvVar(label, value || '');
     } else {
       delete envVars[label];
